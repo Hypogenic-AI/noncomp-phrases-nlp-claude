@@ -1,0 +1,71 @@
+\section{Methodology}
+\label{sec:method}
+
+We measure how well hidden representations at various layers of \gptxl predict future tokens within multi-token phrases, then compare prediction strength across \comp and \noncomp phrase categories.
+
+\subsection{Model and Probing Setup}
+
+We use \gptxl (1.5B parameters, 48 layers, hidden dimension 1600, vocabulary size 50,257) for all experiments.
+We probe nine layers sampled across the full model depth: $\{0, 6, 12, 18, 24, 30, 36, 42, 47\}$.
+All inference runs in half precision (fp16) on a single NVIDIA RTX A6000 GPU.
+
+\subsection{Probing Signals}
+
+We compute three complementary signals for each phrase:
+
+\para{Next-token probability (NTP).}
+At each token position within a phrase, we record the model's output probability for the actual next token.
+We aggregate across positions to compute the average next-token probability and average surprisal (in bits: $-\log_2 p$) within each phrase.
+
+\para{Logit lens.}
+At each probed layer $\ell$ and each token position $t$ within the phrase, we apply the model's layer normalization and output head to the hidden state $\vh_t^\ell$, producing a probability distribution over the vocabulary.
+We record the probability assigned to the actual next token $x_{t+1}$:
+\begin{equation}
+    p_{\text{LL}}^\ell(t) = \softmax\!\left(\mW_U \cdot \text{LayerNorm}(\vh_t^\ell)\right)[x_{t+1}]
+    \label{eq:logitlens}
+\end{equation}
+where $\mW_U$ is the unembedding matrix.
+We average $p_{\text{LL}}^\ell(t)$ across all within-phrase positions for each layer.
+
+\para{Future Lens (from first token).}
+At the first token position of each phrase, we apply the \logitlens at each probed layer and record the probability assigned to tokens $k = 1, 2, \ldots$ positions ahead:
+\begin{equation}
+    p_{\text{FL}}^\ell(k) = \softmax\!\left(\mW_U \cdot \text{LayerNorm}(\vh_0^\ell)\right)[x_k]
+    \label{eq:futurelens}
+\end{equation}
+This measures whether the hidden state at the first token of the phrase already encodes information about subsequent tokens---the core \futurelens signal.
+We also compute a \emph{lookahead average}: the mean probability of tokens $\geq$2 positions ahead from each position within the phrase.
+
+\subsection{Datasets}
+\label{sec:datasets}
+
+\para{Farahmand noun compounds.}
+The \farahmand dataset~\citep{farahmand2015multiword} contains 1,042 English noun compounds, each annotated by four expert judges with binary compositionality labels.
+We define a compound as \noncomp if $\geq$3 of 4 judges labeled it as such, yielding 140 \noncomp and 902 \comp compounds.
+We also use the fraction of judges (0, 0.25, 0.5, 0.75, 1.0) as a graded compositionality score for correlation analysis.
+Examples include ``blood bank'' (\noncomp, 4/4 judges) and ``access card'' (\comp, 0/4 judges).
+
+\para{IdioMem idioms.}
+The \idiomem dataset~\citep{haviv2022understanding} contains 852 English idioms drawn from the MAGPIE, LIdiom, and EPIC databases.
+These serve as a validation set of known \noncomp phrases.
+Examples include ``kick the bucket'' and ``turn a blind eye.''
+
+\para{Control bigrams.}
+We construct a set of 55 clearly \comp adjective-noun bigrams (\eg ``big house,'' ``red car,'' ``old man'') as a baseline for the idiom comparison.
+
+\para{Preprocessing.}
+Each phrase is embedded in a fixed template context: ``The \{phrase\} is important.''
+Token boundaries are identified using HuggingFace's \texttt{return\_offsets\_mapping}.
+All phrases tokenize into $\geq$2 tokens.
+
+\subsection{Evaluation Metrics}
+
+\para{Group comparison.}
+We use the Mann-Whitney $U$ test (two-sided) to compare prediction metric distributions between \noncomp and \comp groups, with Cohen's $d$ for effect size.
+We set $\alpha = 0.05$.
+
+\para{Correlation.}
+We compute Spearman rank correlation between each prediction metric and the graded non-compositionality score (fraction of judges labeling a compound \noncomp) on the \farahmand dataset.
+
+\para{Classification.}
+We evaluate binary classification of \noncomp vs.\ \comp compounds using ROC AUC for each individual metric as a threshold classifier, and using 5-fold cross-validated logistic regression over all 22 features combined.

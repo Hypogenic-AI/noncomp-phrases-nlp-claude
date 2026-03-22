@@ -1,0 +1,33 @@
+\section{Related Work}
+\label{sec:related}
+
+\para{Hidden-state prediction of future tokens.}
+\citet{pal2023future} introduced \futurelens, demonstrating that a single hidden state in GPT-J-6B can predict tokens two or more positions ahead with up to 48.4\% accuracy using learned prompt causal interventions.
+Prediction accuracy peaks at middle layers for future tokens (unlike next-token prediction, which peaks at the final layer), suggesting that future information is pre-computed during forward passes.
+Our work extends this finding by testing whether the strength of this pre-computation correlates with non-compositionality.
+
+\para{Token erasure and implicit vocabularies.}
+\citet{feucht2024token} discovered that the last token position of multi-token words and named entities exhibits ``erasure''---information about preceding tokens is rapidly forgotten in early layers as the model overwrites token-level representations with entity-level semantics.
+Their erasure score identifies multi-token lexical items from model internals.
+Where \futurelens detects forward prediction (can the model anticipate tokens ahead?), \tokenerasure detects backward forgetting (does the model discard constituent information?).
+Both signals indicate that the model treats a phrase as a single unit, and combining them is a promising direction we discuss in \secref{sec:discussion}.
+
+\para{Memorization recall in transformers.}
+\citet{haviv2022understanding} provided the first framework for probing memorization recall using idioms.
+They constructed the \idiomem dataset of 852 English idioms and discovered a two-phase memorization profile: early-layer \emph{candidate promotion} (the target token rises to the top of the distribution) followed by late-layer \emph{confidence boosting} (probability sharply increases).
+We use \idiomem as a validation set of known \noncomp phrases and extend the analysis with \futurelens metrics beyond the \logitlens used in their work.
+
+\para{Multi-word expression semantics in transformers.}
+\citet{miletic2024systematic} surveyed how transformers capture MWE semantics, finding that models rely inconsistently on surface patterns and memorized information, with MWE meaning predominantly localized in early layers.
+\citet{rambelli2023frequent} showed that idioms and high-frequency \comp phrases are processed similarly by both humans and neural language models (measured via surprisal), raising an important confound: frequency-based retrieval may mimic non-compositionality signals.
+We address this concern by using expert-annotated compositionality labels from the \farahmand dataset, which contains compounds spanning a range of frequencies.
+
+\para{Compositionality annotation.}
+\citet{farahmand2015multiword} annotated 1,042 English noun compounds with binary compositionality judgments from four expert annotators, providing the controlled evaluation set we use.
+\citet{reddy2011empirical} provided continuous compositionality scores for 90 noun compounds, offering finer granularity but smaller scale.
+We use the Farahmand dataset for its larger size and the availability of majority-vote labels for binary classification.
+
+\para{Logit lens interpretation.}
+The \logitlens~\citep{nostalgebraist2020logitlens} applies the model's output head (layer normalization followed by the unembedding matrix) to intermediate hidden states, interpreting them as probability distributions over the vocabulary.
+\citet{din2023jump} and \citet{geva2022transformer} used this approach to trace how predictions evolve across layers.
+We use the \logitlens as one of our three probing signals, applying it at nine layers spanning the full depth of \gptxl.

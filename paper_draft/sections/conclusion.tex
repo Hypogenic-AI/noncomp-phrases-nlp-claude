@@ -1,0 +1,13 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We investigated whether \futurelens-derived prediction metrics can detect \noncomp phrases memorized by LLMs.
+Using \gptxl and two compositionality-annotated datasets, we find that \noncomp phrases are significantly more predictable from intermediate hidden states than \comp ones.
+On the \farahmand noun compound dataset, the best single metric (next-token probability) achieves ROC AUC = 0.643, and prediction metrics correlate with human compositionality scores at Spearman $r = 0.23$ ($p < 0.0001$).
+On the \idiomem idiom dataset, the effect is dramatically larger (Cohen's $d = 1.85$), confirming that memorized \noncomp units leave a clear signature in model internals.
+
+We find that within-phrase prediction signals are more robust than from-first-token prediction, and that the \noncomp advantage emerges at layer 6 and grows through the final layers of the model.
+These results support the hypothesis that \futurelens can lower-bound the set of \noncomp phrases an LLM has memorized, though the signal is moderate in isolation.
+
+Future work should train dedicated \futurelens probes (rather than relying on the \logitlens), control for phrase frequency, combine forward prediction with backward erasure signals~\citep{feucht2024token}, and replicate on larger models.
+The prediction metrics we evaluate here are best suited as components in a multi-signal non-compositionality detection system.

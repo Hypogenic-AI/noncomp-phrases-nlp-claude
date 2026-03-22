@@ -1,0 +1,50 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\para{Hidden-state prediction as a compositionality signal.}
+Our results confirm that hidden-state prediction metrics carry a statistically significant signal for non-compositionality.
+The effect is consistent across metrics (NTP, \logitlens, \futurelens) and across datasets (\farahmand noun compounds, \idiomem idioms).
+However, the discriminative power on the controlled \farahmand comparison is moderate (AUC $\approx$ 0.64, Cohen's $d \leq 0.49$).
+This suggests that non-compositionality is one of several factors driving within-phrase predictability, alongside word frequency, collocational strength, and topical association.
+
+\para{Within-phrase vs.\ from-first-token prediction.}
+A key finding is that within-phrase prediction signals (NTP, \logitlens applied at each position) outperform the from-first-token \futurelens signal, especially for longer phrases.
+This makes intuitive sense: predicting the next token given all preceding context is easier than predicting multiple tokens ahead from a single hidden state.
+For two-token noun compounds, both signals are equivalent (\futurelens $k{=}1$ from the first token is the same as next-token prediction at that position).
+For longer idioms, the within-phrase signal captures the model's growing confidence as it processes successive idiom tokens, while the from-first-token signal must encode the entire continuation in one hidden state.
+
+\para{The frequency confound.}
+\citet{rambelli2023frequent} showed that frequent \comp phrases and idioms are processed similarly by language models.
+We did not explicitly control for phrase frequency in our analysis, which is a limitation.
+Some portion of the prediction advantage for \noncomp compounds may reflect higher co-occurrence frequency rather than non-compositionality per se.
+Future work should regress out log-frequency to isolate the non-compositionality signal.
+
+\para{Combining forward and backward signals.}
+Our \futurelens-based forward prediction signal and the backward erasure signal of \citet{feucht2024token} detect complementary aspects of holistic phrase encoding.
+Forward prediction measures whether the model anticipates upcoming tokens; backward erasure measures whether it discards constituent-level information.
+A multi-signal system combining both---along with frequency statistics---could achieve substantially better non-compositionality classification than either signal alone.
+
+\subsection{Limitations}
+\label{sec:limitations}
+
+\para{Single model.}
+We evaluated only \gptxl.
+Larger models with broader training data may memorize more phrases and exhibit stronger non-compositionality effects.
+The results should be replicated on models such as Llama-2-7B and GPT-J-6B.
+
+\para{No trained probes.}
+We used the \logitlens (applying the model's own decoder to intermediate hidden states) rather than trained linear probes as in the original \futurelens work~\citep{pal2023future}.
+Trained probes that learn to map hidden states to future token representations would likely yield stronger signals, particularly at middle layers where the \logitlens is least reliable.
+
+\para{Fixed template context.}
+All phrases were embedded in a single template (``The \{phrase\} is important'').
+Naturalistic contexts could affect prediction metrics, both by providing relevant semantic priming and by introducing confounding contextual predictability.
+Evaluating across diverse contexts would strengthen the findings.
+
+\para{Class imbalance.}
+The \farahmand dataset contains 140 \noncomp vs.\ 902 \comp compounds (13.4\% positive rate).
+While we use AUC (which is robust to class imbalance) and non-parametric tests, this imbalance limits statistical power for detecting small effects and may affect logistic regression performance.
+
+\para{Binary compositionality.}
+Compositionality is a continuum, but the \farahmand annotations provide only binary judgments from four annotators.
+Datasets with continuous compositionality scores~\citep{reddy2011empirical} would enable finer-grained evaluation, though at smaller scale.

@@ -1,0 +1,146 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Non-Compositional Compounds Are More Predictable}
+\label{sec:results_farahmand}
+
+\Tabref{tab:farahmand} presents the comparison between \comp and \noncomp noun compounds on the \farahmand dataset.
+Across all metrics, \noncomp compounds show significantly higher within-phrase predictability.
+The strongest effect appears in surprisal (Cohen's $d = -0.49$, $p < 0.0001$): \noncomp compounds have average surprisal of 7.63 bits compared to 9.46 bits for \comp compounds, a reduction of nearly two bits.
+Next-token probability is also significantly higher for \noncomp compounds ($d = 0.21$, $p < 0.0001$).
+
+The \logitlens signal is significant at all probed layers from 6 onward ($p < 0.005$), with effect sizes ranging from $d = 0.12$ (layer 12) to $d = 0.20$ (layers 6 and 42).
+The \futurelens mid-layer probability from the first token shows a smaller but significant effect ($d = 0.12$, $p = 0.004$).
+
+\begin{table}[t]
+\centering
+\caption{Comparison of prediction metrics between \comp (C, $n = 902$) and \noncomp (NC, $n = 140$) noun compounds on the \farahmand dataset. All $p$-values from two-sided Mann-Whitney $U$ tests. Best effect sizes are \textbf{bolded}.}
+\label{tab:farahmand}
+\vspace{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Metric & C (mean $\pm$ sd) & NC (mean $\pm$ sd) & $p$-value & Cohen's $d$ \\
+\midrule
+NTP avg probability & $0.028 \pm 0.090$ & $0.049 \pm 0.110$ & $< 0.0001$ & $0.21$ \\
+NTP avg surprisal & $9.46 \pm 3.86$ & $7.63 \pm 3.64$ & $< 0.0001$ & $\mathbf{-0.49}$ \\
+\midrule
+\logitlens L6 & $0.011 \pm 0.052$ & $0.027 \pm 0.102$ & $< 0.0001$ & $0.20$ \\
+\logitlens L12 & $0.015 \pm 0.067$ & $0.028 \pm 0.100$ & $0.002$ & $0.12$ \\
+\logitlens L24 & $0.026 \pm 0.099$ & $0.045 \pm 0.130$ & $0.001$ & $0.16$ \\
+\logitlens L42 & $0.048 \pm 0.144$ & $0.077 \pm 0.178$ & $< 0.0001$ & $0.18$ \\
+\logitlens L47 & $0.028 \pm 0.094$ & $0.049 \pm 0.138$ & $< 0.0001$ & $0.18$ \\
+\midrule
+\futurelens mid prob & $0.024 \pm 0.094$ & $0.036 \pm 0.114$ & $0.004$ & $0.12$ \\
+\futurelens L47 $k{=}1$ & $0.028 \pm 0.094$ & $0.049 \pm 0.138$ & $< 0.0001$ & $0.18$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Idioms Show Dramatically Higher Predictability}
+\label{sec:results_idioms}
+
+\Tabref{tab:idioms} compares \idiomem idioms against \comp control bigrams.
+The effects are very large by conventional standards.
+Next-token probability within idioms averages 0.277 compared to 0.021 for control bigrams (Cohen's $d = 1.85$, $p < 0.0001$).
+The \logitlens at the final layer shows a similarly large effect ($d = 1.76$).
+Once inside an idiom, the model is highly confident about subsequent tokens---a clear signature of memorization as a holistic unit.
+
+\begin{table}[t]
+\centering
+\caption{Comparison of prediction metrics between \comp control bigrams ($n = 55$) and \idiomem idioms ($n = 852$). Effect sizes above 1.0 are \textbf{bolded}.}
+\label{tab:idioms}
+\vspace{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Metric & Control (mean $\pm$ sd) & Idioms (mean $\pm$ sd) & $p$-value & Cohen's $d$ \\
+\midrule
+NTP avg probability & $0.021 \pm 0.032$ & $0.277 \pm 0.193$ & $< 0.0001$ & $\mathbf{1.85}$ \\
+NTP avg surprisal & $7.34 \pm 2.54$ & $5.56 \pm 2.07$ & $< 0.0001$ & $-0.77$ \\
+\midrule
+\logitlens L42 & $0.050 \pm 0.108$ & $0.232 \pm 0.182$ & $< 0.0001$ & $\mathbf{1.22}$ \\
+\logitlens L47 & $0.024 \pm 0.037$ & $0.268 \pm 0.193$ & $< 0.0001$ & $\mathbf{1.76}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{From-First-Token Prediction Behaves Differently for Long Phrases}
+\label{sec:results_futurelens}
+
+A notable finding is that the \futurelens from-first-token signal behaves oppositely for idioms compared to noun compounds.
+Idioms show \emph{lower} \futurelens probability from the first token at middle layers than control bigrams ($p_{\text{FL}}^{\text{mid}} = 0.002$ vs.\ $0.019$, $p < 0.0001$).
+This occurs because idioms are longer (3--5 tokens), making it harder for a single hidden state to encode the entire continuation.
+The within-phrase prediction signals (NTP, \logitlens)---which measure prediction at each position given full context up to that point---remain highly effective regardless of phrase length.
+
+This result highlights an important methodological point: the \emph{within-phrase} prediction signal is more robust for detecting memorization than the \emph{from-first-token} signal, especially for longer phrases.
+
+\subsection{Correlation with Human Compositionality Scores}
+\label{sec:results_correlation}
+
+\Tabref{tab:correlation} presents Spearman correlations between prediction metrics and graded non-compositionality scores on the \farahmand dataset.
+All correlations are statistically significant ($p < 0.0001$) and positive, indicating that higher prediction accuracy corresponds to lower compositionality.
+The strongest correlations are for NTP surprisal ($r = -0.24$) and NTP average probability ($r = 0.23$), followed by \logitlens at the final layer ($r = 0.22$).
+
+\begin{table}[t]
+\centering
+\caption{Spearman correlation between prediction metrics and non-compositionality score (fraction of judges, 0--1) on the \farahmand dataset ($n = 1{,}042$). All $p < 0.0001$.}
+\label{tab:correlation}
+\vspace{4pt}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Metric & Spearman $r$ \\
+\midrule
+NTP avg probability & $\mathbf{0.233}$ \\
+NTP avg surprisal & $-0.235$ \\
+\logitlens L47 & $0.224$ \\
+\logitlens L42 & $0.209$ \\
+\futurelens L47 $k{=}1$ & $0.224$ \\
+\futurelens mid prob & $0.149$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Binary Classification Performance}
+\label{sec:results_classification}
+
+\Tabref{tab:classification} reports ROC AUC for binary classification of \noncomp vs.\ \comp compounds.
+The best single metric is NTP average probability (AUC = 0.643), slightly outperforming a 5-fold cross-validated logistic regression model over all 22 features (AUC = $0.619 \pm 0.011$).
+This suggests the features are correlated and provide limited complementary information when combined.
+
+When pooling all \noncomp phrases (Farahmand NC + idioms) against all \comp phrases (Farahmand C + control bigrams), NTP average probability achieves AUC = 0.899.
+However, this comparison is confounded by phrase type and length differences and should be interpreted with caution.
+
+\begin{table}[t]
+\centering
+\caption{ROC AUC for binary non-compositionality classification on the \farahmand dataset.}
+\label{tab:classification}
+\vspace{4pt}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Method & AUC \\
+\midrule
+NTP avg probability & $\mathbf{0.643}$ \\
+NTP avg surprisal & $0.640$ \\
+\logitlens L47 & $0.633$ \\
+\logitlens L42 & $0.624$ \\
+\futurelens L47 $k{=}1$ & $0.632$ \\
+\futurelens mid layer & $0.575$ \\
+\midrule
+Logistic regression (22 features, 5-fold CV) & $0.619 \pm 0.011$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Layer-Wise Profile of the Non-Compositional Advantage}
+\label{sec:results_layers}
+
+The \logitlens layer profile reveals distinct processing patterns across phrase types.
+Control bigrams maintain low prediction probability across all layers.
+Farahmand compounds show slightly higher prediction, with \noncomp compounds consistently above \comp ones at every layer from 6 onward (all $p < 0.005$).
+Idioms show a distinctive trajectory: very low prediction at early layers (0--18), followed by a sharp increase at layers 24+, reaching 0.27 at layer 47.
+
+This profile is consistent with the literature on transformer processing: early layers operate on individual tokens, while deeper layers construct holistic phrase-level representations.
+The sharp late-layer rise for idioms suggests that memorized phrase retrieval is a deep-layer phenomenon.

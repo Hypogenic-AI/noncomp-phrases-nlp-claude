@@ -1,0 +1,34 @@
+\section{Introduction}
+\label{sec:intro}
+
+When a language model processes the phrase ``kick the bucket,'' does it compose meaning word-by-word, or does it retrieve the phrase as a single memorized unit?
+This question sits at the heart of understanding how LLMs represent multi-word expressions.
+Prior work has shown that transformer hidden states encode information about future tokens well beyond the immediate next position~\citep{pal2023future}, and that memorized sequences leave distinctive traces in internal representations~\citep{haviv2022understanding}.
+Yet no one has systematically tested whether these forward-prediction signals can distinguish \noncomp phrases---whose meaning cannot be derived from their parts---from \comp ones.
+
+\para{Why this matters.}
+Identifying what an LLM treats as an atomic unit has direct implications for tokenization and vocabulary design, training data memorization detection, and mechanistic interpretability.
+Non-compositional phrases such as idioms (``spill the beans''), named entities (``New York''), and conventionalized compounds (``blood bank'') are processed differently from freely composed expressions~\citep{miletic2024systematic}, yet we lack scalable methods to enumerate them from model internals.
+
+\para{The gap.}
+\citet{pal2023future} demonstrated that individual hidden states in GPT-J encode tokens two or more positions ahead, but evaluated this capability only on general text, not on compositionality-annotated phrases.
+\citet{feucht2024token} introduced \tokenerasure to detect backward forgetting of constituent tokens, a complementary signal, but did not connect it to compositionality judgments.
+\citet{haviv2022understanding} studied idiom memorization with the \logitlens but did not use trained probes or evaluate against graded compositionality scores.
+No prior work has used \futurelens prediction accuracy as a compositionality metric validated against human annotations.
+
+\para{Our approach.}
+We probe \gptxl with three signals---next-token probability, \logitlens decoding across nine layers, and \futurelens prediction from the first token---and evaluate them on two compositionality-annotated datasets: the \farahmand noun compound set (1,042 compounds, 4 expert judges each) and the \idiomem idiom collection (852 idioms).
+We compare \noncomp phrases against \comp controls and measure both binary classification performance and correlation with human compositionality scores.
+
+\para{Key results.}
+Non-compositional compounds show significantly higher within-phrase predictability than \comp ones (ROC AUC = 0.643, Spearman $r = 0.23$ with compositionality scores, $p < 0.0001$).
+Idioms exhibit dramatically higher predictability than \comp bigrams (Cohen's $d = 1.85$).
+The \noncomp advantage appears at all layers from 6 onward but is strongest in the final layers (42--47), consistent with holistic phrase processing in deeper transformer blocks.
+
+We make the following contributions:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item We propose using \futurelens prediction accuracy as a non-compositionality metric and provide the first systematic evaluation against expert compositionality annotations.
+    \item We conduct a controlled comparison across 1,042 noun compounds showing that \noncomp phrases are significantly more predictable from intermediate hidden states (Cohen's $d$ up to 0.49).
+    \item We analyze the layer-wise profile of the \noncomp prediction advantage, finding that it emerges at layer 6 and peaks in the final layers.
+    \item We identify that within-phrase prediction (\logitlens, next-token probability) provides a more robust non-compositionality signal than from-first-token prediction (\futurelens proper), especially for longer phrases.
+\end{itemize}

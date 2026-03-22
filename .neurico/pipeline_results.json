@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "stages": {
+    "resource_finder": {
+      "success": true,
+      "completion_marker": "/workspaces/noncomp-phrases-nlp-claude/.resource_finder_complete",
+      "outputs": {
+        "literature_review": "/workspaces/noncomp-phrases-nlp-claude/literature_review.md",
+        "resources_catalog": "/workspaces/noncomp-phrases-nlp-claude/resources.md",
+        "papers_dir": "/workspaces/noncomp-phrases-nlp-claude/papers",
+        "datasets_dir": "/workspaces/noncomp-phrases-nlp-claude/datasets",
+        "code_dir": "/workspaces/noncomp-phrases-nlp-claude/code"
+      },
+      "log_file": "/workspaces/noncomp-phrases-nlp-claude/logs/resource_finder_claude.log",
+      "transcript_file": "/workspaces/noncomp-phrases-nlp-claude/logs/resource_finder_claude_transcript.jsonl",
+      "elapsed_time": 876.7336137294769
+    },
+    "experiment_runner": {
+      "success": true,
+      "return_code": 0,
+      "elapsed_time": 1774.1565268039703,
+      "log_file": "/workspaces/noncomp-phrases-nlp-claude/logs/execution_claude.log",
+      "transcript_file": "/workspaces/noncomp-phrases-nlp-claude/logs/execution_claude_transcript.jsonl"
+    }
+  },
+  "work_dir": "/workspaces/noncomp-phrases-nlp-claude"
+}

@@ -1,0 +1,10 @@
+\begin{abstract}
+Large language models memorize certain multi-token sequences as holistic units rather than composing them from parts.
+We investigate whether the \futurelens method---predicting future tokens from intermediate hidden states---can detect such \noncomp phrases.
+We evaluate three complementary probing signals on \gptxl: next-token probability within phrases, \logitlens decoding at nine layers spanning the full model depth, and \futurelens prediction from the first token of each phrase.
+On the \farahmand noun compound dataset (1,042 compounds with expert compositionality annotations), \noncomp compounds show significantly higher within-phrase predictability than \comp ones ($p < 0.0001$, Cohen's $d = 0.49$ for surprisal), and the correlation between prediction metrics and human compositionality scores reaches Spearman $r = 0.23$ ($p < 0.0001$).
+Binary classification by next-token probability achieves ROC AUC = 0.643.
+On the \idiomem idiom dataset, the effect is far larger: idioms are dramatically more predictable than \comp bigrams (Cohen's $d = 1.85$).
+Layer-wise analysis reveals that the \noncomp advantage emerges at layer 6 and grows through the final layers, consistent with holistic phrase processing in deeper transformer blocks.
+We conclude that hidden-state prediction metrics provide a statistically significant but moderate signal for non-compositionality, best suited as a component in multi-signal detection systems rather than a standalone classifier.
+\end{abstract}
